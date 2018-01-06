@@ -6,13 +6,15 @@ using MonoGame_Minkowski_Difference.Extensions;
 
 namespace MonoGame_Minkowski_Difference
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        /*
+         * Collision detection and resolution with Minkowski Difference.
+         * Code adapted from https://hamaluik.com/posts/swept-aabb-collision-using-minkowski-difference/
+         */
+
+        private readonly GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
 
         private Texture2D _dotTexture;
         private AABB _boxA;
@@ -29,57 +31,38 @@ namespace MonoGame_Minkowski_Difference
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
             IsMouseVisible = true;
         }
-
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
+        
         protected override void Initialize()
         {
-            _boxA = new AABB(new Vector2(graphics.PreferredBackBufferWidth / 2.0f, 0), new Vector2(10, 10),
+            _boxA = new AABB(new Vector2(_graphics.PreferredBackBufferWidth / 2.0f, 0), new Vector2(10, 10),
                 new Vector2(0, 100), new Vector2(0, 1000));
-            _boxB = new AABB(new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight * 2 - 100) / 2,
-                new Vector2(graphics.PreferredBackBufferWidth / 2.5f, 20)); 
+            _boxB = new AABB(new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight * 2 - 100) / 2,
+                new Vector2(_graphics.PreferredBackBufferWidth / 2.5f, 20)); 
             _mdBox = new AABB(Vector2.Zero, Vector2.Zero);
 
             base.Initialize();
         }
-
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
+        
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _dotTexture = new Texture2D(graphics.GraphicsDevice, 1, 1);
+            _dotTexture = new Texture2D(_graphics.GraphicsDevice, 1, 1);
             _dotTexture.SetData(new[] { Color.White });
 
             _spriteFont = Content.Load<SpriteFont>("Font");
         }
-
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
+        
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            _dotTexture.Dispose();
         }
-
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -187,18 +170,18 @@ namespace MonoGame_Minkowski_Difference
         {
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             var aabbColor = _isColliding ? Color.Green : Color.Red;
-            spriteBatch.Draw(_dotTexture, new Rectangle(_boxB.Min.ToPoint(), _boxB.Size.ToPoint()), Color.Gray);
-            spriteBatch.Draw(_dotTexture, new Rectangle(_boxA.Min.ToPoint(), _boxA.Size.ToPoint()), aabbColor * 0.5f);
-            spriteBatch.Draw(_dotTexture, new Rectangle(_mdBox.Min.ToPoint(), _mdBox.Size.ToPoint()), Color.Blue * 0.5f);
+            _spriteBatch.Draw(_dotTexture, new Rectangle(_boxB.Min.ToPoint(), _boxB.Size.ToPoint()), Color.Gray);
+            _spriteBatch.Draw(_dotTexture, new Rectangle(_boxA.Min.ToPoint(), _boxA.Size.ToPoint()), aabbColor * 0.5f);
+            _spriteBatch.Draw(_dotTexture, new Rectangle(_mdBox.Min.ToPoint(), _mdBox.Size.ToPoint()), Color.Blue * 0.5f);
 
-            spriteBatch.DrawString(_spriteFont, $"Min Minkowski Difference: {_mdBox.Min}", new Vector2(20, 40), Color.White);
-            spriteBatch.DrawString(_spriteFont, $"Max Minkowski Difference: {_mdBox.Max}", new Vector2(20, 60), Color.White);
-            spriteBatch.DrawString(_spriteFont, $"Penetraction Vector: {_penetractionVector}", new Vector2(20, 80), Color.White);
+            _spriteBatch.DrawString(_spriteFont, $"Min Minkowski Difference: {_mdBox.Min}", new Vector2(20, 40), Color.White);
+            _spriteBatch.DrawString(_spriteFont, $"Max Minkowski Difference: {_mdBox.Max}", new Vector2(20, 60), Color.White);
+            _spriteBatch.DrawString(_spriteFont, $"Penetraction Vector: {_penetractionVector}", new Vector2(20, 80), Color.White);
 
-            spriteBatch.End();
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }

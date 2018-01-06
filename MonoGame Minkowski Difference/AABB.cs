@@ -6,6 +6,11 @@ namespace MonoGame_Minkowski_Difference
 {
     public class AABB
     {
+        /*
+         * Collision detection and resolution with Minkowski Difference.
+         * Code adapted from https://hamaluik.com/posts/swept-aabb-collision-using-minkowski-difference/
+         */
+
         public Vector2 Center;
         public Vector2 Extents { get; set; }
 
@@ -55,7 +60,7 @@ namespace MonoGame_Minkowski_Difference
             return boundsPoint;
         }
 
-        private float GetRayIntersectionFractionOfFirstRay(Vector2 originA, Vector2 endA, Vector2 originB, Vector2 endB)
+        private static float GetRayIntersectionFractionOfFirstRay(Vector2 originA, Vector2 endA, Vector2 originB, Vector2 endB)
         {
             var r = endA - originA;
             var s = endB - originB;
@@ -77,7 +82,7 @@ namespace MonoGame_Minkowski_Difference
 
             var u = numerator / denominator;
             var t = (originB - originA).Cross(s) / denominator;
-            if ((t >= 0) && (t <= 1) && (u >= 0) && (u <= 1))
+            if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
             {
                 return t;
             }
